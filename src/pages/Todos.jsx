@@ -6,6 +6,7 @@ export default function Todos() {
     const [todos, setTodos] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [search, setSearch] = useState("");
 
     useEffect(() => {
         const fetchTodos = async () => {
@@ -33,6 +34,10 @@ export default function Todos() {
         setTodos(updatedTodos);
     };
 
+    const filteredTodos = todos.filter((todo) =>
+        todo.title.toLowerCase().includes(search.toLowerCase()),
+    );
+
     if (loading) {
         return <p>Loading todos...</p>;
     }
@@ -41,19 +46,36 @@ export default function Todos() {
         return <p>Error: {error} </p>;
     }
 
+    const addTodo = (e) => {
+        e.preventDefault();
 
-    console.log(todos);
+        if (search.trim() === "") return;
+
+        const newTodo = {
+            id: Date.now(),
+            title: search,
+            completed: false,
+        };
+
+        setTodos([newTodo, ...todos]);
+        setSearch("");
+    };
 
     return (
         <div>
             <h1>Todo List</h1>
+
+            {/* Search */}
+            <input
+                type="text"
+                placeholder="Search todo..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+            />
+
             <ul>
-                {todos.map((todo) => (
-                    <TodoItem
-                        key={todo.id}
-                        todo={todo}
-                        onToggle={toggleTodo}
-                    />
+                {filteredTodos.map((todo) => (
+                    <TodoItem key={todo.id} todo={todo} onToggle={toggleTodo} />
                 ))}
             </ul>
         </div>
