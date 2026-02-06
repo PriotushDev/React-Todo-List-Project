@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import TodoItem from "../components/TodoItem";
+import Loader from "../components/Loader";
 
 export default function Todos() {
     const [todos, setTodos] = useState([]);
@@ -40,7 +41,7 @@ export default function Todos() {
     );
 
     if (loading) {
-        return <p>Loading todos...</p>;
+        return <Loader />;
     }
 
     if (error) {
