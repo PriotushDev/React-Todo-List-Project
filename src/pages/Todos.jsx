@@ -7,6 +7,7 @@ export default function Todos() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [search, setSearch] = useState("");
+    const [newTodo, setNewTodo] = useState("");
 
     useEffect(() => {
         const fetchTodos = async () => {
@@ -46,19 +47,20 @@ export default function Todos() {
         return <p>Error: {error} </p>;
     }
 
+    // just add todos
     const addTodo = (e) => {
         e.preventDefault();
 
-        if (search.trim() === "") return;
+        if (newTodo.trim() === "") return;
 
-        const newTodo = {
+        const todo = {
             id: Date.now(),
-            title: search,
+            title: newTodo,
             completed: false,
         };
 
-        setTodos([newTodo, ...todos]);
-        setSearch("");
+        setTodos([todo, ...todos]);
+        setNewTodo("");
     };
 
     return (
@@ -72,6 +74,18 @@ export default function Todos() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
             />
+
+            {/* Add Todo Form */}
+            <form onSubmit={addTodo}>
+                <input
+                    type="text"
+                    placeholder="Add new todo"
+                    value={newTodo}
+                    onChange={(e) => setNewTodo(e.target.value)}
+                />
+                <button type="submit">Add</button>
+            </form>
+
 
             <ul>
                 {filteredTodos.map((todo) => (
