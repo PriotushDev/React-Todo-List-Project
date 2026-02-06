@@ -12,87 +12,115 @@ export default function Todos() {
 
     useEffect(() => {
         const fetchTodos = async () => {
-            setLoading(true); // life cycle start
-            setError(null); // reset previos error
+            setLoading(true);
+            setError(null);
 
             try {
                 const response = await axios.get(
-                    "https://jsonplaceholder.typicode.com/todos?_limit=10",
+                    "https://jsonplaceholder.typicode.com/todos?_limit=10"
                 );
                 setTodos(response.data);
-            } catch (error) {
-                setError("Failed to Load Data");
+            } catch {
+                setError("Failed to load todos");
             } finally {
-                setLoading(false); // life cycle end
+                setLoading(false);
             }
         };
         fetchTodos();
     }, []);
 
     const toggleTodo = (id) => {
-        const updatedTodos = todos.map((todo) =>
-            todo.id == id ? { ...todo, completed: !todo.completed } : todo,
+        setTodos(
+            todos.map((todo) =>
+                todo.id === id
+                    ? { ...todo, completed: !todo.completed }
+                    : todo
+            )
         );
-        setTodos(updatedTodos);
     };
 
     const filteredTodos = todos.filter((todo) =>
-        todo.title.toLowerCase().includes(search.toLowerCase()),
+        todo.title.toLowerCase().includes(search.toLowerCase())
     );
 
-    if (loading) {
-        return <Loader />;
-    }
+    if (loading) return <Loader />;
+    if (error) return <p className="text-danger text-center mt-4">{error}</p>;
 
-    if (error) {
-        return <p>Error: {error} </p>;
-    }
-
-    // just add todos
     const addTodo = (e) => {
         e.preventDefault();
-
         if (newTodo.trim() === "") return;
 
-        const todo = {
-            id: Date.now(),
-            title: newTodo,
-            completed: false,
-        };
-
-        setTodos([todo, ...todos]);
+        setTodos([
+            {
+                id: Date.now(),
+                title: newTodo,
+                completed: false,
+            },
+            ...todos,
+        ]);
         setNewTodo("");
     };
 
     return (
-        <div>
-            <h1>Todo List</h1>
+        <div className="container mt-4">
+            {/* HEADER */}
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <h3 className="mb-0">Todo List</h3>
+                <span className="badge bg-primary">
+                    Total: {todos.length}
+                </span>
+            </div>
 
-            {/* Search */}
+            {/* ADD TODO CARD */}
+            <div className="card shadow-sm mb-4">
+                <div className="card-body">
+                    <form onSubmit={addTodo}>
+                        <div className="input-group">
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="✍️ Add a new task..."
+                                value={newTodo}
+                                onChange={(e) => setNewTodo(e.target.value)}
+                            />
+                            <button
+                                type="submit"
+                                className="btn btn-success px-4"
+                            >
+                                ➕ Add
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {/* SEARCH */}
             <input
                 type="text"
-                placeholder="Search todo..."
+                className="form-control mb-3"
+                placeholder="🔍 Search todo..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
             />
 
-            {/* Add Todo Form */}
-            <form onSubmit={addTodo}>
-                <input
-                    type="text"
-                    placeholder="Add new todo"
-                    value={newTodo}
-                    onChange={(e) => setNewTodo(e.target.value)}
-                />
-                <button type="submit">Add</button>
-            </form>
-
-
-            <ul>
-                {filteredTodos.map((todo) => (
-                    <TodoItem key={todo.id} todo={todo} onToggle={toggleTodo} />
-                ))}
-            </ul>
+            {/* TODO LIST */}
+            <div className="card shadow-sm">
+                <ul className="list-group list-group-flush">
+                    {filteredTodos.length > 0 ? (
+                        filteredTodos.map((todo) => (
+                            <TodoItem
+                                key={todo.id}
+                                todo={todo}
+                                onToggle={toggleTodo}
+                            />
+                        ))
+                    ) : (
+                        <li className="list-group-item text-center text-muted">
+                            No todos found
+                        </li>
+                    )}
+                </ul>
+            </div>
         </div>
     );
 }

@@ -17,8 +17,8 @@ export default function PostDetails() {
 
     useEffect(() => {
         const fetchPost = async () => {
-            setLoading(true);   // lifecycle start
-            setError(null);     // reset previous error
+            setLoading(true);
+            setError(null);
 
             try {
                 const response = await axios.get(
@@ -28,14 +28,14 @@ export default function PostDetails() {
             } catch (err) {
                 setError("Failed to load post");
             } finally {
-                setLoading(false); // lifecycle end
+                setLoading(false);
             }
         };
 
         fetchPost();
     }, [id]);
 
-        // ⭐ toggle favorite
+    // ⭐ toggle favorite
     const toggleFavorite = () => {
         let updatedFavorites;
 
@@ -49,27 +49,38 @@ export default function PostDetails() {
         localStorage.setItem("favPosts", JSON.stringify(updatedFavorites));
     };
 
-
     if (loading) return <Loader />;
-
-    if (error) return <p>Error: {error}</p>;
+    if (error) return <p className="text-danger text-center mt-4">Error: {error}</p>;
 
     const isFavorite = favorites.includes(post.id);
 
-
     return (
-        <div>
-            {/* ⭐ Favorite button */}
-            <button onClick={toggleFavorite} style={{ marginRight: "10px" }}>
-                {isFavorite ? "❤️ Favorited" : "🤍 Add to Favorite"}
-            </button>
+        <div className="container mt-4">
+            <div className="card shadow-sm">
+                <div className="card-body">
+                    {/* Top actions */}
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <button
+                            onClick={toggleFavorite}
+                            className={`btn ${
+                                isFavorite
+                                    ? "btn-outline-danger"
+                                    : "btn-outline-secondary"
+                            }`}
+                        >
+                            {isFavorite ? "❤️ Favorited" : "🤍 Add to Favorite"}
+                        </button>
 
-            <Link to="/posts">⬅ Back to Posts</Link>
+                        <Link to="/posts" className="btn btn-secondary btn-sm">
+                            ⬅ Back to Posts
+                        </Link>
+                    </div>
 
-            <h2>{post.title}</h2>
-            <p>{post.body}</p>
-
-
+                    {/* Post content */}
+                    <h4 className="card-title">{post.title}</h4>
+                    <p className="card-text mt-3">{post.body}</p>
+                </div>
+            </div>
         </div>
     );
 }

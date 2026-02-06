@@ -11,17 +11,17 @@ export default function Posts() {
   const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
-    // 🔹 load favorites (sync)
+    // load favorites from localStorage
     const storedFavs = JSON.parse(localStorage.getItem("favPosts")) || [];
     setFavorites(storedFavs);
 
     const fetchPosts = async () => {
       setLoading(true);
-      setError(false);
+      setError(null);
 
       try {
         const response = await axios.get(
-          "https://jsonplaceholder.typicode.com/posts?_limit=10",
+          "https://jsonplaceholder.typicode.com/posts?_limit=10"
         );
         setPosts(response.data);
       } catch (error) {
@@ -30,71 +30,72 @@ export default function Posts() {
         setLoading(false);
       }
     };
+
     fetchPosts();
   }, []);
 
   const toggleFavorite = (id) => {
     let updated;
-
     if (favorites.includes(id)) {
       updated = favorites.filter((fid) => fid !== id);
     } else {
       updated = [...favorites, id];
     }
-
     setFavorites(updated);
     localStorage.setItem("favPosts", JSON.stringify(updated));
   };
 
   const filteredPosts = posts.filter((post) =>
-    post.title.toLowerCase().includes(search.toLocaleLowerCase()),
+    post.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (loading) {
-    return <Loader />;
-  }
-
-  if (error) {
-    return <p>Error: {error}</p>;
-  }
+  if (loading) return <Loader />;
+  if (error) return <p className="text-danger text-center mt-4">{error}</p>;
 
   return (
-    <div>
-      <h1>Posts</h1>
+    <div className="container mt-4">
+      <h3 className="mb-3">Posts</h3>
 
-      {/* search */}
+      {/* Search */}
       <input
         type="text"
-        placeholder="search post..."
+        className="form-control mb-4"
+        placeholder="Search post..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      <ul>
+
+      <div className="row">
         {filteredPosts.map((post) => (
-          <li key={post.id}>
-            <h4>
-              <button
-                onClick={() => toggleFavorite(post.id)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: "18px",
-                }}
-              >
-                {favorites.includes(post.id) ? "❤️" : "🤍"}
-              </button>
+          <div key={post.id} className="col-md-6 col-lg-4 mb-4">
+            <div className="card h-100 shadow-sm">
+              <div className="card-body">
+                <h5 className="card-title">
+                  <button
+                    onClick={() => toggleFavorite(post.id)}
+                    className="btn btn-link p-0 me-1"
+                    style={{ fontSize: "18px" }}
+                  >
+                    {favorites.includes(post.id) ? "❤️" : "🤍"}
+                  </button>
+                  {post.title}
+                </h5>
 
-              {post.title}
+                <p className="card-text">
+                  {post.body.substring(0, 80)}...
+                </p>
 
-            </h4>
-            <p>{post.body.substring(0, 80)}...</p>
-
-            <Link to={`/posts/${post.id}`}>View Detail</Link>
-          </li>
+                <Link
+                  to={`/posts/${post.id}`}
+                  className="btn btn-sm btn-primary"
+                >
+                  View Detail
+                </Link>
+              </div>
+            </div>
+          </div>
         ))}
-        ;
-      </ul>
+      </div>
     </div>
   );
 }
