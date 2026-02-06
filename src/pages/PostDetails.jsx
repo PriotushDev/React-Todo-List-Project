@@ -35,13 +35,35 @@ export default function PostDetails() {
         fetchPost();
     }, [id]);
 
+        // ⭐ toggle favorite
+    const toggleFavorite = () => {
+        let updatedFavorites;
+
+        if (favorites.includes(post.id)) {
+            updatedFavorites = favorites.filter((fid) => fid !== post.id);
+        } else {
+            updatedFavorites = [...favorites, post.id];
+        }
+
+        setFavorites(updatedFavorites);
+        localStorage.setItem("favPosts", JSON.stringify(updatedFavorites));
+    };
+
 
     if (loading) return <Loader />;
 
     if (error) return <p>Error: {error}</p>;
 
+    const isFavorite = favorites.includes(post.id);
+
+
     return (
         <div>
+            {/* ⭐ Favorite button */}
+            <button onClick={toggleFavorite} style={{ marginRight: "10px" }}>
+                {isFavorite ? "❤️ Favorited" : "🤍 Add to Favorite"}
+            </button>
+
             <Link to="/posts">⬅ Back to Posts</Link>
 
             <h2>{post.title}</h2>

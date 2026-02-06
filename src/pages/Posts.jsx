@@ -8,8 +8,13 @@ export default function Posts() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
+  const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
+    // 🔹 load favorites (sync)
+    const storedFavs = JSON.parse(localStorage.getItem("favPosts")) || [];
+    setFavorites(storedFavs);
+
     const fetchPosts = async () => {
       setLoading(true);
       setError(false);
@@ -27,6 +32,19 @@ export default function Posts() {
     };
     fetchPosts();
   }, []);
+
+  const toggleFavorite = (id) => {
+    let updated;
+
+    if (favorites.includes(id)) {
+      updated = favorites.filter((fid) => fid !== id);
+    } else {
+      updated = [...favorites, id];
+    }
+
+    setFavorites(updated);
+    localStorage.setItem("favPosts", JSON.stringify(updated));
+  };
 
   const filteredPosts = posts.filter((post) =>
     post.title.toLowerCase().includes(search.toLocaleLowerCase()),
@@ -54,7 +72,22 @@ export default function Posts() {
       <ul>
         {filteredPosts.map((post) => (
           <li key={post.id}>
-            <h3>{post.title}</h3>
+            <h4>
+              <button
+                onClick={() => toggleFavorite(post.id)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                }}
+              >
+                {favorites.includes(post.id) ? "❤️" : "🤍"}
+              </button>
+
+              {post.title}
+
+            </h4>
             <p>{post.body.substring(0, 80)}...</p>
 
             <Link to={`/posts/${post.id}`}>View Detail</Link>
